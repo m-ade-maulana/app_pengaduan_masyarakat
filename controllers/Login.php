@@ -36,8 +36,13 @@ class Login extends CI_Controller
 		$username = $this->input->post('username');
 		$password = $this->input->post('password');
 
+		// Variabel untuk mengambil data admin dan petugas
 		$get_user = $this->db->get_where('petugas', ['username' => $username])->row_array();
 
+		// Variabel untuk mengambil data masyarakat
+		$get_user_masyarakat = $this->db->get_where('masyarakat', ['username' => $username])->row_array();
+
+		// Get User Masyarakat
 		if ($get_user) {
 			if ($get_user['username'] == $username) {
 				if ($get_user['password'] == $password) {
@@ -72,6 +77,29 @@ class Login extends CI_Controller
 				}
 			} else {
 				$this->session->set_flashdata('message', $this->message('error', 'Login Gagal Username Tidak di temukan'));
+				redirect('login');
+			}
+		}
+		// Get User Masyarakat
+		else if ($get_user_masyarakat) {
+			if ($get_user_masyarakat['username'] == $username) {
+				if ($get_user_masyarakat['password'] == $password) {
+					$get_data = [
+						'nik' => $get_user_masyarakat['nik'],
+						'nama' => $get_user_masyarakat['nama'],
+						'username' => $get_user_masyarakat['username'],
+						'telp' => $get_user_masyarakat['telp']
+					];
+
+					$this->session->set_flashdata('message', $this->message('success', 'Selamat Datang ' . $get_data['nama_petugas']));
+					$this->session->set_userdata($get_data);
+					redirect('masyarakat');
+				} else {
+					$this->session->set_flashdata('message', $this->message('error', 'Login Gagal Password Salah'));
+					redirect('login');
+				}
+			} else {
+				$this->session->set_flashdata('message', $this->message('error', 'Login Gagal Username Tidak Di Temukan'));
 				redirect('login');
 			}
 		} else {
